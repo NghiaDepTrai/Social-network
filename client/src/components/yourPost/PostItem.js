@@ -1,0 +1,83 @@
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import Moment from "react-moment";
+import { connect } from "react-redux";
+import { addLike, removeLike, deletePost } from "../../actions/post";
+const PostItem = ({
+  addLike,
+  removeLike,
+  deletePost,
+  post: { _id, text, name, avatar, user, likes, comments, date, unlikes },
+  auth,
+  showActions,
+}) => {
+  let checkLike = "none";
+  const userId = JSON.parse(localStorage.getItem("user_infor"));
+  if (likes.filter(like => like.user === userId._id).length) {
+    checkLike = "liked";
+  }
+  if (unlikes.filter(like => like.user === userId._id).length) {
+    checkLike = "unliked";
+  }
+
+  return (
+    <>
+      <div className='post bg-white p-1 my-1'>
+        <div>
+          <Link to={`/profile/${user}`}>
+            <img className='round-img' src={avatar} alt='' />
+            <h4>{name}</h4>
+          </Link>
+        </div>
+        <div>
+          <p className='my-1'>{text}</p>
+          <p className='post-date'>
+            Posted on <Moment format='YYYY/MM/DD'>{date}</Moment>
+          </p>
+          {showActions && (
+            <>
+              <button
+                onClick={(e) => addLike(_id)}
+                type='button'
+                className='btn btn-light'
+              >
+                <i style={{ color: checkLike === "liked" ? "green" : "" }} className='fas fa-thumbs-up'></i>
+                {likes.length > 0 && <span>{likes.length}</span>}
+              </button>
+              <button
+                onClick={(e) => removeLike(_id)}
+                type='button'
+                className='btn btn-light'
+              >
+                <i style={{ color: checkLike === "unliked" ? "green" : "" }} className='fas fa-thumbs-down'></i>
+                {unlikes.length > 0 && <span>{unlikes.length}</span>}
+              </button>
+              <Link to={`/postsById/${_id}`} className='btn btn-primary'>
+                Discussion{" "}
+                {comments.length > 0 && (
+                  <span className='comment-count'>{comments.length}</span>
+                )}
+              </Link>
+              {!auth.loading && user === auth.user._id && (
+                <button
+                  onClick={(e) => deletePost(_id)}
+                  type='button'
+                  className='btn btn-danger'
+                >
+                  <i className='fas fa-times'></i>
+                </button>
+              )}
+            
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+export default connect(mapStateToProps, { addLike, removeLike, deletePost })(
+  PostItem
+);
